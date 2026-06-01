@@ -139,7 +139,7 @@ export function ApplicationFormDialog({ trigger, application }: Props) {
         <DialogHeader>
           <DialogTitle>{isEdit ? 'Edit application' : 'New application'}</DialogTitle>
         </DialogHeader>
-        <form onSubmit={onSubmit} className="grid grid-cols-2 gap-4" noValidate>
+        <form onSubmit={onSubmit} className="grid grid-cols-1 gap-4 sm:grid-cols-2" noValidate>
           <Field label="Company" error={form.formState.errors.companyName?.message}>
             <Input {...form.register('companyName')} />
           </Field>
