@@ -8,6 +8,7 @@ import {
 import { config } from './config/index.js';
 import { errorHandler } from './middleware/error-handler.js';
 import { authRoutes } from './modules/auth/auth.routes.js';
+import { applicationsRoutes } from './modules/applications/applications.routes.js';
 import { healthRoutes } from './modules/health/health.routes.js';
 import './types/auth.js';
 
@@ -38,6 +39,7 @@ export async function buildApp(): Promise<FastifyInstance> {
 
   await app.register(healthRoutes);
   await app.register(authRoutes, { prefix: '/api/auth' });
+  await app.register(applicationsRoutes, { prefix: '/api/applications' });
 
   return app;
 }

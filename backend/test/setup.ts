@@ -26,7 +26,10 @@ const TABLES = [
 ];
 
 beforeAll(async () => {
-  const migrationClient = postgres(process.env.DATABASE_URL as string, { max: 1 });
+  const migrationClient = postgres(process.env.DATABASE_URL as string, {
+    max: 1,
+    onnotice: () => {},
+  });
   const migrationDb = drizzle(migrationClient);
   await migrate(migrationDb, { migrationsFolder });
   await migrationClient.end();
