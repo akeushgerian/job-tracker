@@ -48,3 +48,26 @@ export async function registerUser(
 export function authed(cookie: string, options: InjectOptions): InjectOptions {
   return { ...options, headers: { ...options.headers, cookie } };
 }
+
+/** Creates an application for the session and returns its id. */
+export async function createApplication(
+  app: FastifyInstance,
+  cookie: string,
+  overrides: Record<string, unknown> = {},
+): Promise<string> {
+  const res = await app.inject(
+    authed(cookie, {
+      method: 'POST',
+      url: '/api/applications',
+      payload: {
+        companyName: 'Acme Corp',
+        positionTitle: 'Backend Engineer',
+        ...overrides,
+      },
+    }),
+  );
+  if (res.statusCode !== 201) {
+    throw new Error(`Failed to create application: ${res.body}`);
+  }
+  return (res.json() as { id: string }).id;
+}
