@@ -30,7 +30,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         <div className="mx-auto flex h-14 max-w-7xl items-center gap-6 px-4">
           <Link to="/applications" className="flex items-center gap-2 font-semibold">
             <Briefcase className="h-5 w-5 text-primary" />
-            <span>Job Tracker</span>
+            <span>Laufbahn</span>
           </Link>
           <nav className="flex items-center gap-1">
             {navItems.map((item) => (

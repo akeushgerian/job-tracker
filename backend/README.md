@@ -1,4 +1,4 @@
-# Backend — Job Application Tracker API
+# Backend — Laufbahn API
 
 Fastify + TypeScript (strict) + Drizzle ORM + PostgreSQL. Layered architecture:
 `routes → controllers → services → repositories → database`.
