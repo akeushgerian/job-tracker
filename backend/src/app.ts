@@ -9,6 +9,10 @@ import { config } from './config/index.js';
 import { errorHandler } from './middleware/error-handler.js';
 import { authRoutes } from './modules/auth/auth.routes.js';
 import { applicationsRoutes } from './modules/applications/applications.routes.js';
+import { interviewsRoutes } from './modules/interviews/interviews.routes.js';
+import { contactsRoutes } from './modules/contacts/contacts.routes.js';
+import { followUpsRoutes } from './modules/follow-ups/follow-ups.routes.js';
+import { activitiesRoutes } from './modules/activities/activities.routes.js';
 import { healthRoutes } from './modules/health/health.routes.js';
 import './types/auth.js';
 
@@ -40,6 +44,10 @@ export async function buildApp(): Promise<FastifyInstance> {
   await app.register(healthRoutes);
   await app.register(authRoutes, { prefix: '/api/auth' });
   await app.register(applicationsRoutes, { prefix: '/api/applications' });
+  await app.register(interviewsRoutes, { prefix: '/api' });
+  await app.register(contactsRoutes, { prefix: '/api' });
+  await app.register(followUpsRoutes, { prefix: '/api' });
+  await app.register(activitiesRoutes, { prefix: '/api' });
 
   return app;
 }
