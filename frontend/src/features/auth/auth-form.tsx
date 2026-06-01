@@ -1,4 +1,4 @@
-import { useForm } from 'react-hook-form';
+import { useForm, type Resolver } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Link, useNavigate } from '@tanstack/react-router';
@@ -26,7 +26,6 @@ const registerSchema = loginSchema.extend({
   password: z.string().min(8, 'At least 8 characters'),
 });
 
-type LoginValues = z.infer<typeof loginSchema>;
 type RegisterValues = z.infer<typeof registerSchema>;
 
 export function AuthForm({ mode }: { mode: 'login' | 'register' }) {
@@ -36,7 +35,11 @@ export function AuthForm({ mode }: { mode: 'login' | 'register' }) {
   const isRegister = mode === 'register';
 
   const form = useForm<RegisterValues>({
-    resolver: zodResolver(isRegister ? registerSchema : loginSchema),
+    // The form type is the register superset; in login mode the active schema
+    // simply ignores `name`. The cast bridges the two schema shapes.
+    resolver: zodResolver(
+      isRegister ? registerSchema : loginSchema,
+    ) as unknown as Resolver<RegisterValues>,
     defaultValues: { email: '', password: '', name: '' },
   });
 
@@ -45,9 +48,9 @@ export function AuthForm({ mode }: { mode: 'login' | 'register' }) {
   const onSubmit = form.handleSubmit(async (values) => {
     try {
       if (isRegister) {
-        await register.mutateAsync(values as RegisterValues);
+        await register.mutateAsync(values);
       } else {
-        await login.mutateAsync(values as LoginValues);
+        await login.mutateAsync({ email: values.email, password: values.password });
       }
       await navigate({ to: '/applications' });
     } catch (error) {
