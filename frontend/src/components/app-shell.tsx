@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { useSetAtom } from 'jotai';
-import { Briefcase, LayoutDashboard, KanbanSquare, LogOut, Sparkles } from 'lucide-react';
+import { LayoutDashboard, KanbanSquare, LogOut, Sparkles } from 'lucide-react';
 import { useLogout, useMe } from '@/features/auth/api';
 import { assistantOpenAtom } from '@/stores/assistant';
 import { AssistantPanel } from '@/features/assistant/assistant-panel';
@@ -24,21 +24,33 @@ export function AppShell({ children }: { children: ReactNode }) {
     await navigate({ to: '/login' });
   };
 
+  const initials = user?.name
+    ?.split(' ')
+    .map((p) => p[0])
+    .slice(0, 2)
+    .join('')
+    .toUpperCase();
+
   return (
     <div className="flex min-h-screen flex-col">
-      <header className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur">
-        <div className="mx-auto flex h-14 max-w-7xl items-center gap-6 px-4">
-          <Link to="/applications" className="flex items-center gap-2 font-semibold">
-            <Briefcase className="h-5 w-5 text-primary" />
-            <span>Laufbahn</span>
+      <header className="sticky top-0 z-40 border-b border-border/70 bg-background/80 backdrop-blur-md">
+        <div className="mx-auto flex h-16 max-w-7xl items-center gap-8 px-5">
+          <Link to="/applications" className="group flex items-center gap-2.5">
+            <span className="flex h-7 w-7 items-center justify-center rounded-md bg-primary text-primary-foreground">
+              <span className="h-1.5 w-1.5 rounded-full bg-brass" />
+            </span>
+            <span className="font-display text-xl font-medium tracking-tight">
+              Laufbahn
+            </span>
           </Link>
-          <nav className="flex items-center gap-1">
+
+          <nav className="hidden items-center gap-1 sm:flex">
             {navItems.map((item) => (
               <Link
                 key={item.to}
                 to={item.to}
                 className={cn(
-                  'flex items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground',
+                  'flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground',
                   '[&.active]:bg-accent [&.active]:text-foreground',
                 )}
               >
@@ -47,29 +59,37 @@ export function AppShell({ children }: { children: ReactNode }) {
               </Link>
             ))}
           </nav>
-          <div className="ml-auto flex items-center gap-3">
-            {user && (
-              <span className="hidden text-sm text-muted-foreground sm:inline">
-                {user.name}
-              </span>
-            )}
+
+          <div className="ml-auto flex items-center gap-2.5">
             <Button variant="outline" size="sm" onClick={() => openAssistant(true)}>
-              <Sparkles className="h-4 w-4 text-primary" />
+              <Sparkles className="h-4 w-4 text-brass" />
               <span className="hidden sm:inline">Assistant</span>
             </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onLogout}
-              disabled={logout.isPending}
-            >
-              <LogOut className="h-4 w-4" />
-              <span className="hidden sm:inline">Logout</span>
-            </Button>
+            {user && (
+              <div className="flex items-center gap-2.5 border-l border-border/70 pl-2.5">
+                <span
+                  className="flex h-8 w-8 items-center justify-center rounded-full bg-secondary text-xs font-medium text-secondary-foreground"
+                  title={user.name}
+                >
+                  {initials}
+                </span>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={onLogout}
+                  disabled={logout.isPending}
+                  title="Log out"
+                >
+                  <LogOut className="h-4 w-4" />
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       </header>
-      <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-6">{children}</main>
+
+      <main className="mx-auto w-full max-w-7xl flex-1 px-5 py-8">{children}</main>
+
       <AssistantPanel />
     </div>
   );

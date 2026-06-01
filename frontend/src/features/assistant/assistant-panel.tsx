@@ -96,16 +96,20 @@ export function AssistantPanel() {
   return (
     <>
       <div
-        className="fixed inset-0 z-40 bg-black/20"
+        className="fixed inset-0 z-40 bg-[hsl(30_20%_14%/0.35)] backdrop-blur-[2px] animate-fade"
         onClick={() => setOpen(false)}
         aria-hidden
       />
-      <aside className="fixed right-0 top-0 z-50 flex h-full w-full max-w-md flex-col border-l border-border bg-background shadow-xl">
-        <header className="flex items-center justify-between border-b border-border px-4 py-3">
-          <div className="flex items-center gap-2">
-            <Sparkles className="h-4 w-4 text-primary" />
-            <span className="font-semibold">Assistant</span>
-            <span className="text-xs text-muted-foreground">· local LLM</span>
+      <aside className="fixed right-0 top-0 z-50 flex h-full w-full max-w-md flex-col border-l border-border/70 bg-background shadow-lg animate-fade">
+        <header className="flex items-center justify-between border-b border-border/70 px-5 py-4">
+          <div className="flex items-center gap-2.5">
+            <span className="flex h-7 w-7 items-center justify-center rounded-md bg-primary/10">
+              <Sparkles className="h-4 w-4 text-brass" />
+            </span>
+            <div className="leading-tight">
+              <p className="font-display text-base font-medium">Assistant</p>
+              <p className="text-[0.7rem] text-muted-foreground">Private · runs locally</p>
+            </div>
           </div>
           <Button variant="ghost" size="icon" onClick={() => setOpen(false)}>
             <X className="h-4 w-4" />
