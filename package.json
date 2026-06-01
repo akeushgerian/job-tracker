@@ -1,0 +1,16 @@
+{
+  "name": "job-tracker",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Personal job application tracker — Fastify + Drizzle + React",
+  "scripts": {
+    "dev:api": "pnpm --filter backend dev",
+    "dev:web": "pnpm --filter frontend dev",
+    "test:api": "pnpm --filter backend test",
+    "db:migrate": "pnpm --filter backend db:migrate",
+    "db:generate": "pnpm --filter backend db:generate"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}
