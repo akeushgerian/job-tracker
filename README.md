@@ -1,7 +1,10 @@
-# Job Application Tracker
+# Laufbahn
 
 A personal job-application tracker and portfolio piece demonstrating a clean,
 layered Node.js + TypeScript backend with a modern React frontend.
+
+> **Laufbahn** (German: "career path") — track every application from discovered to
+> offer, with a local, agentic LLM assistant that never sends your data to the cloud.
 
 - **Backend:** Node 22, Fastify 5, TypeScript (strict), PostgreSQL 17 via Drizzle ORM,
   Zod validation + serialization, JWT auth (access + refresh) in httpOnly cookies,

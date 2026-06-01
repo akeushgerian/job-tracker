@@ -1,4 +1,4 @@
-# Frontend — Job Application Tracker
+# Frontend — Laufbahn
 
 React 19 + Vite + TanStack Router (file-based) + TanStack Query + Jotai +
 React Hook Form + Zod + Tailwind CSS v4 + shadcn-style UI.

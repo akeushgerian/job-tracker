@@ -70,7 +70,7 @@ export function AuthForm({ mode }: { mode: 'login' | 'register' }) {
           <CardDescription>
             {isRegister
               ? 'Start tracking your job applications.'
-              : 'Sign in to your job tracker.'}
+              : 'Sign in to Laufbahn.'}
           </CardDescription>
         </CardHeader>
         <CardContent>
