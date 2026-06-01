@@ -15,6 +15,12 @@ const envSchema = z.object({
     .enum(['true', 'false'])
     .default('false')
     .transform((value) => value === 'true'),
+
+  // --- Local LLM (Ollama, OpenAI-compatible) ---
+  LLM_BASE_URL: z.string().url().default('http://localhost:11434/v1'),
+  LLM_MODEL: z.string().default('llama3.1:8b'),
+  LLM_API_KEY: z.string().default('ollama'),
+  LLM_MAX_STEPS: z.coerce.number().int().positive().max(12).default(6),
 });
 
 export type Config = z.infer<typeof envSchema>;
