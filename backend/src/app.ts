@@ -14,6 +14,7 @@ import { contactsRoutes } from './modules/contacts/contacts.routes.js';
 import { followUpsRoutes } from './modules/follow-ups/follow-ups.routes.js';
 import { activitiesRoutes } from './modules/activities/activities.routes.js';
 import { dashboardRoutes } from './modules/dashboard/dashboard.routes.js';
+import { assistantRoutes } from './modules/assistant/assistant.routes.js';
 import { healthRoutes } from './modules/health/health.routes.js';
 import './types/auth.js';
 
@@ -50,6 +51,7 @@ export async function buildApp(): Promise<FastifyInstance> {
   await app.register(followUpsRoutes, { prefix: '/api' });
   await app.register(activitiesRoutes, { prefix: '/api' });
   await app.register(dashboardRoutes, { prefix: '/api/dashboard' });
+  await app.register(assistantRoutes, { prefix: '/api/assistant' });
 
   return app;
 }
