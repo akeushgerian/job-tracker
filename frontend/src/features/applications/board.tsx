@@ -11,6 +11,7 @@ import {
 } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { Spinner } from '@/components/ui/spinner';
+import { STATUS_DOT_CLASSES } from './status-badge';
 
 // Closed states share a single column at the end of the board.
 const COLUMNS: { status: ApplicationStatus; label: string }[] = [
@@ -50,10 +51,15 @@ export function Board({ search }: { search: string }) {
     setDraggingId(null);
   };
 
-  if (isLoading) return <Spinner className="h-6 w-6 text-muted-foreground" />;
+  if (isLoading)
+    return (
+      <div className="flex justify-center py-20">
+        <Spinner className="h-6 w-6 text-muted-foreground" />
+      </div>
+    );
 
   return (
-    <div className="flex gap-3 overflow-x-auto pb-4">
+    <div className="-mx-1 flex gap-3 overflow-x-auto px-1 pb-4">
       {COLUMNS.map((col) => {
         const items = grouped.get(col.status) ?? [];
         const droppable =
@@ -62,8 +68,10 @@ export function Board({ search }: { search: string }) {
           <Column
             key={col.status}
             label={col.label}
+            dotClass={STATUS_DOT_CLASSES[col.status]}
             count={items.length}
             highlight={dragOver === col.status && droppable}
+            droppableHint={dragged != null && droppable}
             onDragOver={(e) => {
               if (droppable) {
                 e.preventDefault();
@@ -91,16 +99,20 @@ export function Board({ search }: { search: string }) {
 
 function Column({
   label,
+  dotClass,
   count,
   highlight,
+  droppableHint,
   children,
   onDragOver,
   onDragLeave,
   onDrop,
 }: {
   label: string;
+  dotClass: string;
   count: number;
   highlight: boolean;
+  droppableHint: boolean;
   children: React.ReactNode;
   onDragOver: React.DragEventHandler;
   onDragLeave: React.DragEventHandler;
@@ -112,13 +124,15 @@ function Column({
       onDragLeave={onDragLeave}
       onDrop={onDrop}
       className={cn(
-        'flex w-72 shrink-0 flex-col rounded-lg bg-muted/50 p-2 transition-colors',
-        highlight && 'bg-primary/10 ring-2 ring-primary/40',
+        'flex w-[19rem] shrink-0 flex-col rounded-xl border border-transparent bg-muted/40 p-2.5 transition-all duration-200',
+        droppableHint && 'border-dashed border-primary/30',
+        highlight && 'border-solid border-primary/50 bg-primary/[0.06]',
       )}
     >
-      <div className="flex items-center justify-between px-1 py-1.5">
-        <span className="text-sm font-medium">{label}</span>
-        <span className="rounded-full bg-background px-2 text-xs text-muted-foreground">
+      <div className="mb-2 flex items-center gap-2 px-1.5 py-1">
+        <span className={cn('h-2 w-2 rounded-full', dotClass)} />
+        <span className="text-sm font-medium tracking-tight">{label}</span>
+        <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-card px-1.5 text-xs font-medium text-muted-foreground tnum shadow-xs">
           {count}
         </span>
       </div>
@@ -136,10 +150,11 @@ function ClosedColumn({
 }) {
   const items = statuses.flatMap((s) => grouped.get(s) ?? []);
   return (
-    <div className="flex w-72 shrink-0 flex-col rounded-lg bg-muted/50 p-2">
-      <div className="flex items-center justify-between px-1 py-1.5">
-        <span className="text-sm font-medium">Closed</span>
-        <span className="rounded-full bg-background px-2 text-xs text-muted-foreground">
+    <div className="flex w-[19rem] shrink-0 flex-col rounded-xl border border-transparent bg-muted/40 p-2.5">
+      <div className="mb-2 flex items-center gap-2 px-1.5 py-1">
+        <span className="h-2 w-2 rounded-full bg-[hsl(33_8%_60%)]" />
+        <span className="text-sm font-medium tracking-tight">Closed</span>
+        <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-card px-1.5 text-xs font-medium text-muted-foreground tnum shadow-xs">
           {items.length}
         </span>
       </div>

@@ -152,14 +152,16 @@ function StatCard({
   value: string;
 }) {
   return (
-    <Card>
-      <CardContent className="flex items-center gap-3 p-5">
-        <div className="flex h-10 w-10 items-center justify-center rounded-md bg-primary/10 text-primary">
+    <Card className="transition-shadow duration-200 hover:shadow-md">
+      <CardContent className="flex items-center gap-3.5 p-5">
+        <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary/10 text-primary">
           <Icon className="h-5 w-5" />
         </div>
         <div>
-          <p className="text-2xl font-semibold leading-none">{value}</p>
-          <p className="mt-1 text-xs text-muted-foreground">{label}</p>
+          <p className="font-display text-3xl font-medium leading-none tnum">{value}</p>
+          <p className="mt-1.5 text-xs uppercase tracking-wide text-muted-foreground">
+            {label}
+          </p>
         </div>
       </CardContent>
     </Card>
@@ -180,13 +182,13 @@ function StatusBar({
       <span className="w-32 shrink-0 text-sm text-muted-foreground">
         {STATUS_LABELS[status]}
       </span>
-      <div className="h-2.5 flex-1 overflow-hidden rounded-full bg-muted">
+      <div className="h-2 flex-1 overflow-hidden rounded-full bg-muted">
         <div
-          className="h-full rounded-full bg-primary transition-all"
-          style={{ width: `${(count / max) * 100}%` }}
+          className="h-full rounded-full bg-primary transition-all duration-500"
+          style={{ width: `${Math.max(count > 0 ? 6 : 0, (count / max) * 100)}%` }}
         />
       </div>
-      <span className="w-6 text-right text-sm font-medium">{count}</span>
+      <span className="w-6 text-right text-sm font-medium tnum">{count}</span>
     </div>
   );
 }
