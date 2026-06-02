@@ -5,11 +5,17 @@
   "description": "Laufbahn — personal job application tracker (Fastify + Drizzle + React)",
   "packageManager": "pnpm@10.15.0",
   "scripts": {
+    "demo": "docker compose build api frontend && docker compose up -d && pnpm seed",
+    "up": "docker compose up -d",
+    "down": "docker compose down",
+    "dev:db": "docker compose up -d postgres postgres_test && pnpm --filter backend db:migrate",
     "dev:api": "pnpm --filter backend dev",
     "dev:web": "pnpm --filter frontend dev",
+    "seed": "docker compose exec api node dist/db/seed.js",
     "test:api": "pnpm --filter backend test",
     "db:migrate": "pnpm --filter backend db:migrate",
-    "db:generate": "pnpm --filter backend db:generate"
+    "db:generate": "pnpm --filter backend db:generate",
+    "db:seed": "pnpm --filter backend db:seed"
   },
   "engines": {
     "node": ">=22"

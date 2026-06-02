@@ -29,36 +29,57 @@ for details.
 - A dashboard: totals, response rate, average time-to-response, upcoming interviews,
   and overdue follow-ups.
 
-## Quick start (Docker)
+## Running the project
+
+Postgres **always** runs in Docker. There are two ways to run the app — pick one,
+don't mix them (both want port 3000). All commands use the root `Makefile`
+(`make help` lists everything).
+
+### 🅰 Demo mode — everything in Docker (recruiter-ready)
 
 ```bash
-cp .env.example .env          # adjust secrets for anything non-local
-docker compose up -d          # postgres + api (migrates on boot) + frontend
-# frontend → http://localhost:5173   api → http://localhost:3000
+cp .env.example .env     # first time only; adjust secrets for non-local use
+make demo                # build images + start all + load demo data
 ```
 
-## Local development
+- Frontend → http://localhost:5173 · API → http://localhost:3000
+- Demo login: **recruiter@laufbahn.app** / **laufbahn-demo**
 
 ```bash
-pnpm install                                  # install both workspaces
-
-# database (Docker)
-docker compose up -d postgres postgres_test   # app DB on 5432, test DB on 5433
-
-# backend
-cd backend && pnpm db:migrate && pnpm dev      # http://localhost:3000
-
-# frontend (separate terminal)
-cd frontend && pnpm dev                         # http://localhost:5173 (proxies /api)
+make down                # stop everything (database is kept)
+make up                  # start again
+make seed                # reload demo data anytime (idempotent)
+make rebuild             # rebuild images after pulling new code
 ```
 
-## Tests
-
-Backend integration tests run against the real test Postgres (no mocks):
+### 🅱 Dev mode — DB in Docker, app local with hot reload
 
 ```bash
-docker compose up -d postgres_test
-cd backend && pnpm test
+pnpm install             # first time only — installs both workspaces
+make dev-db              # start the databases + run migrations
+make dev-api             # terminal 1 — API with hot reload (:3000)
+make dev-web             # terminal 2 — frontend with hot reload (:5173)
+make seed                # optional: load demo data
+```
+
+> Dev mode reads `backend/.env`, which is pre-pointed at the Dockerized dev DB
+> (`localhost:5432`). Don't run `make up` (the Docker API) at the same time.
+
+### Tests
+
+```bash
+make test                # backend integration tests vs the throwaway test DB
+```
+
+The **test database** (`postgres_test`, port 5433) is memory-backed and used *only*
+by `make test`. It is wiped on restart and is never your real data — ignore it for
+normal use.
+
+### Reset / wipe
+
+```bash
+make reset               # destroy the DB volume, start fresh + migrate
+make clean               # stop everything and delete the DB volume
 ```
 
 ## Repository layout
