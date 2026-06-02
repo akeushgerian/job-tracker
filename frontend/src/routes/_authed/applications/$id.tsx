@@ -33,7 +33,7 @@ function ApplicationDetailPage() {
   }
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="mx-auto flex w-full max-w-7xl flex-col gap-5 px-5 py-8">
       <div>
         <Link
           to="/applications"

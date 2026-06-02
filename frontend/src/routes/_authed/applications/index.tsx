@@ -14,8 +14,8 @@ function ApplicationsPage() {
   const [search, setSearch] = useState('');
 
   return (
-    <div className="flex h-full flex-col gap-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
+    <div className="flex flex-col">
+      <div className="mx-auto flex w-full max-w-7xl flex-wrap items-center justify-between gap-3 px-5 pb-4 pt-8">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Pipeline</h1>
           <p className="text-sm text-muted-foreground">
@@ -43,7 +43,9 @@ function ApplicationsPage() {
         </div>
       </div>
 
-      <Board search={search} />
+      <div className="px-5 pb-8">
+        <Board search={search} />
+      </div>
     </div>
   );
 }

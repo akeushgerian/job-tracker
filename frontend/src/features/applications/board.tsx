@@ -59,7 +59,7 @@ export function Board({ search }: { search: string }) {
     );
 
   return (
-    <div className="-mx-1 flex gap-3 overflow-x-auto px-1 pb-4">
+    <div className="flex gap-3 overflow-x-auto pb-4">
       {COLUMNS.map((col) => {
         const items = grouped.get(col.status) ?? [];
         const droppable =
@@ -124,7 +124,7 @@ function Column({
       onDragLeave={onDragLeave}
       onDrop={onDrop}
       className={cn(
-        'flex w-[19rem] shrink-0 flex-col rounded-xl border border-transparent bg-muted/40 p-2.5 transition-all duration-200',
+        'flex min-w-[220px] flex-1 flex-col rounded-xl border border-transparent bg-muted/40 p-2.5 transition-all duration-200',
         droppableHint && 'border-dashed border-primary/30',
         highlight && 'border-solid border-primary/50 bg-primary/[0.06]',
       )}
@@ -150,7 +150,7 @@ function ClosedColumn({
 }) {
   const items = statuses.flatMap((s) => grouped.get(s) ?? []);
   return (
-    <div className="flex w-[19rem] shrink-0 flex-col rounded-xl border border-transparent bg-muted/40 p-2.5">
+    <div className="flex min-w-[220px] flex-1 flex-col rounded-xl border border-transparent bg-muted/40 p-2.5">
       <div className="mb-2 flex items-center gap-2 px-1.5 py-1">
         <span className="h-2 w-2 rounded-full bg-[hsl(33_8%_60%)]" />
         <span className="text-sm font-medium tracking-tight">Closed</span>

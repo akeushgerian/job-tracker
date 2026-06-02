@@ -16,7 +16,7 @@ function ProfilePage() {
   if (isLoading) return <FullPageSpinner />;
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-5 py-8">
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">Profile</h1>
         <p className="text-sm text-muted-foreground">
