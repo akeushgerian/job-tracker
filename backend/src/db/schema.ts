@@ -6,7 +6,9 @@ import {
   integer,
   boolean,
   timestamp,
+  jsonb,
   index,
+  uniqueIndex,
 } from 'drizzle-orm/pg-core';
 
 // --- Enums ---
@@ -163,6 +165,67 @@ export const contacts = pgTable(
   (table) => [index('contacts_application_id_idx').on(table.applicationId)],
 );
 
+export const userProfiles = pgTable(
+  'user_profiles',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    headline: text('headline'),
+    targetRole: text('target_role'),
+    branch: text('branch'),
+    seniority: text('seniority'),
+    location: text('location'),
+    remotePref: remoteTypeEnum('remote_pref'),
+    skills: jsonb('skills').$type<string[]>().notNull().default([]),
+    links: jsonb('links').$type<Record<string, string>>().notNull().default({}),
+    summary: text('summary'),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [uniqueIndex('user_profiles_user_id_idx').on(table.userId)],
+);
+
+export const coverLetterReferences = pgTable(
+  'cover_letter_references',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    label: text('label').notNull(),
+    content: text('content').notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [index('cover_letter_references_user_id_idx').on(table.userId)],
+);
+
+export const coverLetters = pgTable(
+  'cover_letters',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    applicationId: uuid('application_id').references(() => applications.id, {
+      onDelete: 'set null',
+    }),
+    jobTitle: text('job_title'),
+    jobCompany: text('job_company'),
+    jobUrl: text('job_url'),
+    jobText: text('job_text').notNull(),
+    content: text('content').notNull(),
+    model: text('model'),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    index('cover_letters_user_id_idx').on(table.userId),
+    index('cover_letters_application_id_idx').on(table.applicationId),
+  ],
+);
+
 // --- Inferred row types ---
 
 export type UserRow = typeof users.$inferSelect;
@@ -177,3 +240,9 @@ export type FollowUpRow = typeof followUps.$inferSelect;
 export type NewFollowUpRow = typeof followUps.$inferInsert;
 export type ContactRow = typeof contacts.$inferSelect;
 export type NewContactRow = typeof contacts.$inferInsert;
+export type UserProfileRow = typeof userProfiles.$inferSelect;
+export type NewUserProfileRow = typeof userProfiles.$inferInsert;
+export type CoverLetterReferenceRow = typeof coverLetterReferences.$inferSelect;
+export type NewCoverLetterReferenceRow = typeof coverLetterReferences.$inferInsert;
+export type CoverLetterRow = typeof coverLetters.$inferSelect;
+export type NewCoverLetterRow = typeof coverLetters.$inferInsert;
