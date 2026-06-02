@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
+  "packageManager": "pnpm@10.15.0",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
@@ -31,6 +32,7 @@
   "devDependencies": {
     "@tailwindcss/vite": "^4.0.6",
     "@tanstack/router-plugin": "^1.99.0",
+    "@types/node": "^22.15.3",
     "@types/react": "^19.0.8",
     "@types/react-dom": "^19.0.3",
     "@vitejs/plugin-react": "^4.3.4",
