@@ -6,6 +6,7 @@ import { useLogout, useMe } from '@/features/auth/api';
 import { assistantOpenAtom } from '@/stores/assistant';
 import { AssistantPanel } from '@/features/assistant/assistant-panel';
 import { Button } from '@/components/ui/button';
+import { Logo } from '@/components/logo';
 import { cn } from '@/lib/utils';
 
 const navItems = [
@@ -36,9 +37,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <header className="sticky top-0 z-40 border-b border-border/70 bg-background/80 backdrop-blur-md">
         <div className="mx-auto flex h-16 max-w-7xl items-center gap-8 px-5">
           <Link to="/applications" className="group flex items-center gap-2.5">
-            <span className="flex h-7 w-7 items-center justify-center rounded-md bg-primary text-primary-foreground">
-              <span className="h-1.5 w-1.5 rounded-full bg-brass" />
-            </span>
+            <Logo className="h-8 w-8 transition-transform group-hover:scale-105" />
             <span className="font-display text-xl font-medium tracking-tight">
               Laufbahn
             </span>
