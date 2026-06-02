@@ -108,3 +108,37 @@ export class InvalidStatusTransitionError extends AppError {
     super(`Cannot transition application from "${from}" to "${to}"`);
   }
 }
+
+export class CoverLetterNotFoundError extends NotFoundError {
+  readonly code = 'COVER_LETTER_NOT_FOUND';
+
+  constructor(id: string) {
+    super(`Cover letter "${id}" was not found`);
+  }
+}
+
+export class CoverLetterReferenceNotFoundError extends NotFoundError {
+  readonly code = 'COVER_LETTER_REFERENCE_NOT_FOUND';
+
+  constructor(id: string) {
+    super(`Cover letter reference "${id}" was not found`);
+  }
+}
+
+export class ProfileRequiredError extends AppError {
+  readonly statusCode = 400;
+  readonly code = 'PROFILE_REQUIRED';
+
+  constructor() {
+    super('Set up your profile before generating a cover letter');
+  }
+}
+
+export class JobFetchError extends AppError {
+  readonly statusCode = 422;
+  readonly code = 'JOB_FETCH_FAILED';
+
+  constructor(message = 'Could not read that URL — paste the posting text instead') {
+    super(message);
+  }
+}

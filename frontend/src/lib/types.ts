@@ -51,6 +51,51 @@ export interface Paginated<T> {
   pagination: { page: number; pageSize: number; total: number; totalPages: number };
 }
 
+export interface ProfileLinks {
+  linkedin?: string;
+  github?: string;
+  portfolio?: string;
+  website?: string;
+}
+
+export interface Profile {
+  id: string;
+  userId: string;
+  headline: string | null;
+  targetRole: string | null;
+  branch: string | null;
+  seniority: string | null;
+  location: string | null;
+  remotePref: RemoteType | null;
+  skills: string[];
+  links: ProfileLinks;
+  summary: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CoverLetter {
+  id: string;
+  userId: string;
+  applicationId: string | null;
+  jobTitle: string | null;
+  jobCompany: string | null;
+  jobUrl: string | null;
+  jobText: string;
+  content: string;
+  model: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CoverLetterReference {
+  id: string;
+  userId: string;
+  label: string;
+  content: string;
+  createdAt: string;
+}
+
 export type InterviewType = 'recruiter_call' | 'technical' | 'final' | 'culture';
 export type InterviewOutcome = 'pending' | 'passed' | 'failed';
 

@@ -1,10 +1,11 @@
 import type { ReactNode } from 'react';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { useSetAtom } from 'jotai';
-import { LayoutDashboard, KanbanSquare, LogOut, Sparkles } from 'lucide-react';
+import { LayoutDashboard, KanbanSquare, LogOut, Sparkles, User, PenLine } from 'lucide-react';
 import { useLogout, useMe } from '@/features/auth/api';
 import { assistantOpenAtom } from '@/stores/assistant';
 import { AssistantPanel } from '@/features/assistant/assistant-panel';
+import { CoverLetterDialog } from '@/features/cover-letters/cover-letter-dialog';
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/logo';
 import { cn } from '@/lib/utils';
@@ -12,6 +13,7 @@ import { cn } from '@/lib/utils';
 const navItems = [
   { to: '/applications', label: 'Pipeline', icon: KanbanSquare },
   { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { to: '/profile', label: 'Profile', icon: User },
 ] as const;
 
 export function AppShell({ children }: { children: ReactNode }) {
@@ -60,6 +62,14 @@ export function AppShell({ children }: { children: ReactNode }) {
           </nav>
 
           <div className="ml-auto flex items-center gap-2.5">
+            <CoverLetterDialog
+              trigger={
+                <Button variant="outline" size="sm">
+                  <PenLine className="h-4 w-4 text-brass" />
+                  <span className="hidden sm:inline">Apply to a job</span>
+                </Button>
+              }
+            />
             <Button variant="outline" size="sm" onClick={() => openAssistant(true)}>
               <Sparkles className="h-4 w-4 text-brass" />
               <span className="hidden sm:inline">Assistant</span>
