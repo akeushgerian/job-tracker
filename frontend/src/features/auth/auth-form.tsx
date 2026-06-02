@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
+import { Logo } from '@/components/logo';
 import { useLogin, useRegister } from './api';
 
 const PIPELINE_LABELS = [
@@ -74,8 +75,8 @@ export function AuthForm({ mode }: { mode: 'login' | 'register' }) {
           }}
         />
         <div className="relative flex items-center gap-2.5">
-          <span className="flex h-7 w-7 items-center justify-center rounded-md bg-primary-foreground/10">
-            <span className="h-1.5 w-1.5 rounded-full bg-brass" />
+          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-background shadow-sm">
+            <Logo className="h-8 w-8" />
           </span>
           <span className="font-display text-xl font-medium">Laufbahn</span>
         </div>
@@ -116,9 +117,7 @@ export function AuthForm({ mode }: { mode: 'login' | 'register' }) {
       <main className="flex items-center justify-center p-6 sm:p-10">
         <div className="w-full max-w-sm">
           <div className="mb-8 flex items-center gap-2.5 lg:hidden">
-            <span className="flex h-7 w-7 items-center justify-center rounded-md bg-primary text-primary-foreground">
-              <span className="h-1.5 w-1.5 rounded-full bg-brass" />
-            </span>
+            <Logo className="h-8 w-8" />
             <span className="font-display text-xl font-medium">Laufbahn</span>
           </div>
 
