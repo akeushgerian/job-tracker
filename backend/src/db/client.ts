@@ -5,7 +5,9 @@ import * as schema from './schema.js';
 
 // A single shared connection pool for the process. postgres.js manages pooling
 // internally; `max` keeps the test/dev footprint small.
-const queryClient = postgres(config.DATABASE_URL, { max: 10 });
+// Neon's pooled endpoints (PgBouncer, "-pooler" host) reject prepared statements.
+const pooledEndpoint = new URL(config.DATABASE_URL).hostname.includes('-pooler');
+const queryClient = postgres(config.DATABASE_URL, { max: 10, prepare: !pooledEndpoint });
 
 export const db = drizzle(queryClient, { schema });
 

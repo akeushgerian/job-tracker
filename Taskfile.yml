@@ -1,0 +1,164 @@
+# Laufbahn — task runner (https://taskfile.dev, `brew install go-task`).
+#
+# Two ways to run the project:
+#   DEMO mode (recruiters): everything in Docker, self-contained local DB.
+#     -> task demo / task up / task down
+#   DEV mode (coding): app local with hot reload, data lives in the CLOUD DB
+#     (DATABASE_URL in backend/.env — Neon). -> task dev:api / task dev:web
+#
+# The throwaway test DB (port 5433) always runs in Docker; `task test` manages it.
+
+version: '3'
+
+tasks:
+  default:
+    silent: true
+    cmds:
+      - task --list
+
+  ## --------------------------------------------------------------------------
+  ## Demo mode (full Docker — recruiter-ready, self-contained local DB)
+  ## --------------------------------------------------------------------------
+
+  demo:
+    desc: Build images, start everything, load demo data (recruiter-ready)
+    cmds:
+      - task: build
+      - task: up
+      - task: wait-api
+      - task: seed
+      - cmd: |
+          echo ""
+          echo "  Laufbahn is up:  http://localhost:5173"
+          echo "  Demo login:      recruiter@laufbahn.app / laufbahn-demo"
+        silent: true
+
+  up:
+    desc: Start all containers (postgres + api + frontend) in the background
+    cmds:
+      - docker compose up -d
+
+  down:
+    desc: Stop and remove all containers (keeps the database volume)
+    cmds:
+      - docker compose down
+
+  stop:
+    desc: Pause containers without removing them
+    cmds:
+      - docker compose stop
+
+  start:
+    desc: Resume previously stopped containers
+    cmds:
+      - docker compose start
+
+  build:
+    desc: (Re)build the api + frontend images from current source
+    cmds:
+      - docker compose build api frontend
+
+  rebuild:
+    desc: Full clean restart with freshly built images
+    cmds:
+      - task: down
+      - task: build
+      - task: up
+
+  seed:
+    desc: Load demo data into the running demo DB (idempotent)
+    cmds:
+      - docker compose exec api node dist/db/seed.js
+
+  reset:
+    desc: DESTROY the demo database volume, then start fresh (api migrates on boot)
+    cmds:
+      - docker compose down -v
+      - docker compose up -d
+      - task: wait-db
+      - cmd: echo "Fresh demo database created and migrated. Run 'task seed' for demo data."
+        silent: true
+
+  logs:
+    desc: Tail logs for api + frontend
+    cmds:
+      - docker compose logs -f api frontend
+
+  ps:
+    desc: Show container status
+    cmds:
+      - docker compose ps
+
+  ## --------------------------------------------------------------------------
+  ## Dev mode (app local with hot reload, data in the cloud DB)
+  ## --------------------------------------------------------------------------
+
+  dev:api:
+    desc: Run the API locally with hot reload (:3000) — talks to the cloud DB
+    cmds:
+      - pnpm --filter backend dev
+
+  dev:web:
+    desc: Run the frontend locally with hot reload (:5173)
+    cmds:
+      - pnpm --filter frontend dev
+
+  dev:migrate:
+    desc: Apply migrations to the dev DB (DATABASE_URL in backend/.env — the cloud DB)
+    cmds:
+      - pnpm --filter backend db:migrate
+
+  dev:local-db:
+    desc: Start the local fallback Postgres (:5432) — point backend/.env at localhost to use it offline
+    cmds:
+      - docker compose up -d postgres
+      - task: wait-db
+
+  db:push-to-cloud:
+    desc: One-off copy of the local Docker dev DB into the cloud DB (OVERWRITES the cloud side)
+    prompt: This overwrites the cloud database (backend/.env DATABASE_URL) with the local Docker dev DB. Continue?
+    dotenv: ['backend/.env']
+    cmds:
+      - docker compose up -d postgres
+      - task: wait-db
+      - docker compose exec -T postgres pg_dump -U jobtracker --clean --if-exists --no-owner --no-privileges jobtracker | docker run --rm -i postgres:17-alpine psql "$DATABASE_URL"
+
+  ## --------------------------------------------------------------------------
+  ## Tests & housekeeping
+  ## --------------------------------------------------------------------------
+
+  test:
+    desc: Run backend tests against the throwaway test DB (port 5433)
+    cmds:
+      - docker compose up -d postgres_test
+      - task: wait-test-db
+      - pnpm --filter backend test
+
+  clean:
+    desc: Stop everything AND delete the demo database volume (full wipe)
+    cmds:
+      - docker compose down -v
+
+  wait-db:
+    internal: true
+    silent: true
+    cmds:
+      - echo "Waiting for Postgres to be healthy..."
+      - until docker compose exec -T postgres pg_isready -U jobtracker >/dev/null 2>&1; do sleep 1; done
+      - echo "Postgres is ready."
+
+  wait-test-db:
+    internal: true
+    silent: true
+    cmds:
+      - echo "Waiting for the test Postgres to be healthy..."
+      - until docker compose exec -T postgres_test pg_isready -U jobtracker -d jobtracker_test >/dev/null 2>&1; do sleep 1; done
+      - echo "Test Postgres is ready."
+
+  wait-api:
+    internal: true
+    silent: true
+    cmds:
+      - echo "Waiting for the API to be ready (migrations run on boot)..."
+      - until curl -sf http://localhost:3000/health >/dev/null 2>&1; do sleep 1; done
+      - echo "API is ready."

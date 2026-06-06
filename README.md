@@ -4,7 +4,8 @@ A personal job-application tracker and portfolio piece demonstrating a clean,
 layered Node.js + TypeScript backend with a modern React frontend.
 
 > **Laufbahn** (German: "career path") — track every application from discovered to
-> offer, with a local, agentic LLM assistant that never sends your data to the cloud.
+> offer, with a local, agentic LLM assistant that never sends your data to a
+> third-party AI provider.
 
 - **Backend:** Node 22, Fastify 5, TypeScript (strict), PostgreSQL 17 via Drizzle ORM,
   Zod validation + serialization, JWT auth (access + refresh) in httpOnly cookies,
@@ -31,55 +32,64 @@ for details.
 
 ## Running the project
 
-Postgres **always** runs in Docker. There are two ways to run the app — pick one,
-don't mix them (both want port 3000). All commands use the root `Makefile`
-(`make help` lists everything).
+Hosting is **hybrid**: the app always runs locally, while your real data lives in a
+managed cloud Postgres ([Neon](https://neon.tech)). The demo and test databases stay
+in local Docker containers.
 
-### 🅰 Demo mode — everything in Docker (recruiter-ready)
+There are two ways to run the app — pick one, don't mix them (both want port 3000).
+All commands use the root `Taskfile.yml` ([go-task](https://taskfile.dev),
+`brew install go-task`; `task --list` shows everything).
+
+### 🅰 Demo mode — everything in Docker (recruiter-ready, self-contained)
 
 ```bash
 cp .env.example .env     # first time only; adjust secrets for non-local use
-make demo                # build images + start all + load demo data
+task demo                # build images + start all + load demo data
 ```
 
 - Frontend → http://localhost:5173 · API → http://localhost:3000
 - Demo login: **recruiter@laufbahn.app** / **laufbahn-demo**
 
 ```bash
-make down                # stop everything (database is kept)
-make up                  # start again
-make seed                # reload demo data anytime (idempotent)
-make rebuild             # rebuild images after pulling new code
+task down                # stop everything (demo database is kept)
+task up                  # start again
+task seed                # reload demo data anytime (idempotent)
+task rebuild             # rebuild images after pulling new code
 ```
 
-### 🅱 Dev mode — DB in Docker, app local with hot reload
+### 🅱 Dev mode — app local with hot reload, data in the cloud
+
+One-time setup: create a free [Neon](https://neon.tech) project (Postgres 17), copy
+the **direct** (non-pooled) connection string into `DATABASE_URL` in `backend/.env`,
+then run migrations.
 
 ```bash
 pnpm install             # first time only — installs both workspaces
-make dev-db              # start the databases + run migrations
-make dev-api             # terminal 1 — API with hot reload (:3000)
-make dev-web             # terminal 2 — frontend with hot reload (:5173)
-make seed                # optional: load demo data
+task dev:migrate         # apply migrations to the cloud DB
+task dev:api             # terminal 1 — API with hot reload (:3000)
+task dev:web             # terminal 2 — frontend with hot reload (:5173)
 ```
 
-> Dev mode reads `backend/.env`, which is pre-pointed at the Dockerized dev DB
-> (`localhost:5432`). Don't run `make up` (the Docker API) at the same time.
+> Dev mode reads `backend/.env`. Working offline? `task dev:local-db` starts a local
+> Postgres on :5432 — flip `DATABASE_URL` to the commented-out localhost line.
+> `task db:push-to-cloud` copies that local DB up to the cloud one when you're back.
+> Don't run `task up` (the Docker API) at the same time as dev mode.
 
 ### Tests
 
 ```bash
-make test                # backend integration tests vs the throwaway test DB
+task test                # backend integration tests vs the throwaway test DB
 ```
 
-The **test database** (`postgres_test`, port 5433) is memory-backed and used *only*
-by `make test`. It is wiped on restart and is never your real data — ignore it for
-normal use.
+The **test database** (`postgres_test`, port 5433) is memory-backed, local-only, and
+used *only* by `task test`. It is wiped on restart and is never your real data —
+ignore it for normal use.
 
-### Reset / wipe
+### Reset / wipe (demo DB only — never touches the cloud DB)
 
 ```bash
-make reset               # destroy the DB volume, start fresh + migrate
-make clean               # stop everything and delete the DB volume
+task reset               # destroy the demo DB volume, start fresh + migrate
+task clean               # stop everything and delete the demo DB volume
 ```
 
 ## Repository layout

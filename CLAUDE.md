@@ -7,7 +7,11 @@ Guidance for working in this repository.
 **Laufbahn** (German: "career path") — a personal job-application tracker. Track every
 application from *discovered* to *offer* on a Kanban pipeline, with interviews, contacts,
 follow-ups, an activity timeline, a dashboard, a user profile, AI-generated cover letters,
-and a local agentic LLM assistant that never sends data to the cloud.
+and a local agentic LLM assistant that never sends data to a third-party AI provider.
+
+Hosting is **hybrid**: the app always runs locally; real dev data lives in a managed
+cloud Postgres (Neon, via `DATABASE_URL` in `backend/.env`). Demo + test DBs stay in
+local Docker.
 
 It is a portfolio piece: prioritize clean, layered, well-typed code over cleverness.
 
@@ -15,7 +19,8 @@ It is a portfolio piece: prioritize clean, layered, well-typed code over clevern
 
 **Backend** (`backend/`)
 - Node 22, Fastify 5, TypeScript (strict, ESM — imports use `.js` extensions).
-- PostgreSQL 17 via Drizzle ORM (`postgres-js` driver). Migrations are **generated**, not hand-written.
+- PostgreSQL 17 via Drizzle ORM (`postgres-js` driver) — cloud-hosted on Neon for dev
+  data; Dockerized for demo/tests. Migrations are **generated**, not hand-written.
 - Zod for validation *and* response serialization (`fastify-type-provider-zod`).
 - JWT auth (access + refresh) in httpOnly cookies; bcryptjs for hashing.
 - Vitest integration tests run against a **real** Postgres (no DB mocks).
@@ -73,41 +78,46 @@ Add a typed error to `lib/errors.ts` rather than throwing strings. Mirror new DT
 
 ## Running the project — IMPORTANT
 
-Postgres **always** runs in Docker. There are **two run modes; never run both at once**
-(they both bind port 3000). All commands are in the root `Makefile` (`make help`).
+There are **two run modes; never run both at once** (they both bind port 3000).
+All commands are in the root `Taskfile.yml` ([go-task](https://taskfile.dev); `task --list`).
 
-### 🅰 Demo mode — everything in Docker (recruiter-ready)
+### 🅰 Demo mode — everything in Docker (recruiter-ready, self-contained local DB)
 ```bash
-make demo      # build images + start all + seed demo data
-make down      # stop (keeps DB) ·  make up  # start ·  make rebuild  # after new code
+task demo      # build images + start all + seed demo data
+task down      # stop (keeps DB) ·  task up  # start ·  task rebuild  # after new code
 ```
 - Frontend http://localhost:5173 · API http://localhost:3000
 - Demo login: **recruiter@laufbahn.app** / **laufbahn-demo**
 
-### 🅱 Dev mode — DB in Docker, app local with hot reload
+### 🅱 Dev mode — app local with hot reload, real data in the cloud DB (Neon)
 ```bash
-make dev-db    # start databases + migrate
-make dev-api   # terminal 1 — API hot reload (:3000)
-make dev-web   # terminal 2 — frontend hot reload (:5173)
+task dev:migrate   # apply migrations to the cloud DB (DATABASE_URL in backend/.env)
+task dev:api       # terminal 1 — API hot reload (:3000)
+task dev:web       # terminal 2 — frontend hot reload (:5173)
 ```
+- Offline fallback: `task dev:local-db` starts a local Postgres on :5432; flip the
+  commented-out `DATABASE_URL` in `backend/.env`. `task db:push-to-cloud` copies the
+  local DB up to the cloud one (destructive on the cloud side).
 
 ### Other
 ```bash
-make seed      # (re)load demo data — idempotent (deletes & recreates the demo user)
-make test      # backend integration tests
-make reset     # destroy DB volume, start fresh + migrate
-make help      # list all targets
+task seed      # (re)load demo data — idempotent (deletes & recreates the demo user)
+task test      # backend integration tests
+task reset     # destroy the demo DB volume, start fresh + migrate (never the cloud DB)
+task --list    # list all tasks
 ```
 
 ## Environment & config — gotchas
 
-- **`backend/.env`** is read by **Dev mode** (`pnpm dev` / `make dev-api`): points at
-  `localhost:5432`, API `:3000`. Must match the Dockerized dev DB.
+- **`backend/.env`** is read by **Dev mode** (`pnpm dev` / `task dev:api`): `DATABASE_URL`
+  points at the **Neon cloud DB** (use the *direct*, non `-pooler` connection string —
+  `db/client.ts` disables prepared statements automatically if a pooled URL is used).
 - **Root `.env`** is read by **docker compose** (Demo mode). `cp .env.example .env` first time.
-- Three databases exist in compose:
-  - dev DB → `postgres` (host port **5432**) — your real data.
-  - **test DB** → `postgres_test` (host port **5433**) — memory-backed, used **only** by
-    `make test`, wiped on restart. Not real data; ignore it for normal use.
+- Three databases exist:
+  - **dev DB** → Neon (cloud) — your real data. Migrations run via `task dev:migrate`.
+  - demo DB → `postgres` container (host port **5432**) — demo-mode data + offline fallback.
+  - **test DB** → `postgres_test` container (host port **5433**) — memory-backed, used
+    **only** by `task test`, wiped on restart. Not real data; ignore it for normal use.
 - Tests use their own DATABASE_URL (see `backend/vitest.config.ts`), independent of `.env`.
 
 ## Database changes
@@ -127,7 +137,7 @@ structure for substantial new capabilities.
 
 ## Before you call something done
 
-- Backend: `pnpm --filter backend test` (needs the test DB: `make test` handles it) and
+- Backend: `pnpm --filter backend test` (needs the test DB: `task test` handles it) and
   `pnpm --filter backend typecheck`.
 - Frontend: `pnpm --filter frontend typecheck` (and `vite build` regenerates the route tree).
 - Report failures honestly with their output; don't mark work complete unless it's verified.
