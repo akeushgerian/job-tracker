@@ -5,6 +5,7 @@ import type {
   CreateReferenceInput,
   GenerateCoverLetterInput,
   ListCoverLettersQuery,
+  SaveCoverLetterInput,
   UpdateCoverLetterInput,
   UpdateReferenceInput,
 } from './cover-letters.schemas.js';
@@ -20,6 +21,15 @@ export class CoverLettersController {
   ): Promise<void> => {
     const user = requireUser(request);
     const letter = await this.service.generate(user.id, request.body);
+    await reply.status(201).send(letter);
+  };
+
+  save = async (
+    request: FastifyRequest<{ Body: SaveCoverLetterInput }>,
+    reply: FastifyReply,
+  ): Promise<void> => {
+    const user = requireUser(request);
+    const letter = await this.service.save(user.id, request.body);
     await reply.status(201).send(letter);
   };
 

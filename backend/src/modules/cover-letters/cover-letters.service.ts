@@ -17,6 +17,7 @@ import type {
   CoverLetterDto,
   GenerateCoverLetterInput,
   ReferenceDto,
+  SaveCoverLetterInput,
 } from './cover-letters.schemas.js';
 
 function toDto(row: CoverLetterRow): CoverLetterDto {
@@ -88,6 +89,7 @@ export class CoverLettersService {
       jobCompany,
       referenceText,
       tone: input.tone ?? null,
+      customInstructions: input.customInstructions ?? null,
     });
 
     const result = await chatCompletion(messages, []);
@@ -104,6 +106,23 @@ export class CoverLettersService {
       jobText,
       content,
       model: config.LLM_MODEL,
+    });
+    return toDto(row);
+  }
+
+  async save(userId: string, input: SaveCoverLetterInput): Promise<CoverLetterDto> {
+    const application = input.applicationId
+      ? await this.applications.getById(userId, input.applicationId)
+      : null;
+
+    const row = await this.repo.create(userId, {
+      applicationId: application?.id ?? null,
+      jobTitle: input.jobTitle ?? application?.positionTitle ?? null,
+      jobCompany: input.jobCompany ?? application?.companyName ?? null,
+      jobUrl: application?.jobUrl ?? null,
+      jobText: '',
+      content: input.content,
+      model: null,
     });
     return toDto(row);
   }

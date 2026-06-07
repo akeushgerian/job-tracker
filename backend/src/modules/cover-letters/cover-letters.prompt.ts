@@ -19,10 +19,13 @@ function profileBlock(profile: ProfileDto): string {
 }
 
 const SYSTEM_RULES = [
-  'You are a cover-letter writer inside Laufbahn, a personal job-application tracker.',
-  'Write a cover letter for the user applying to the job below.',
+  'You are an expert cover-letter writer inside Laufbahn, a personal job-application tracker.',
+  'Write a compelling cover letter for the user applying to the job below.',
   'Ground every claim strictly in the user profile and the job posting — never invent employers, dates, degrees, or achievements that are not present.',
-  'When a reference letter is provided, closely match its structure, tone, paragraphing, and approximate length. When none is provided, write a clean, professional, modern cover letter.',
+  'Structure: opening hook that names the role and shows genuine interest, one or two body paragraphs that map the candidate\'s strongest relevant skills/experience directly to the job requirements, a brief closing with a clear call to action.',
+  'Be specific: mirror key phrases and the exact job title from the posting. Lead with value, not "I am writing to apply for…".',
+  'Target 250–350 words unless a format reference or custom instructions mandate otherwise.',
+  'When a reference letter is provided, closely match its structure, tone, paragraphing, and approximate length.',
   'Write in the language of the job posting.',
   'Output only the cover letter body text — no preamble, no explanations, no markdown code fences, no placeholders like "[Your Name]" unless the information is genuinely unavailable.',
 ].join('\n');
@@ -34,6 +37,7 @@ export function buildCoverLetterMessages(input: {
   jobCompany?: string | null;
   referenceText?: string | null;
   tone?: string | null;
+  customInstructions?: string | null;
 }): ChatMessage[] {
   const parts: string[] = [];
   parts.push('=== USER PROFILE ===\n' + profileBlock(input.profile));
@@ -56,6 +60,9 @@ export function buildCoverLetterMessages(input: {
   }
   if (input.tone) {
     parts.push(`\n=== TONE ===\n${input.tone}`);
+  }
+  if (input.customInstructions) {
+    parts.push(`\n=== ADDITIONAL INSTRUCTIONS ===\n${input.customInstructions}`);
   }
 
   parts.push('\nWrite the cover letter now.');

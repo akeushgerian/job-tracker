@@ -1,7 +1,6 @@
 import type { ApplicationStatus } from '@/lib/types';
 
-// Mirrors the backend pipeline so the board can pre-validate a drop target.
-const PIPELINE: ApplicationStatus[] = [
+const ALL_STATUSES: ApplicationStatus[] = [
   'discovered',
   'applied',
   'recruiter_call',
@@ -9,22 +8,17 @@ const PIPELINE: ApplicationStatus[] = [
   'final_interview',
   'offer',
   'accepted',
+  'rejected',
+  'withdrawn',
 ];
 
-const TERMINAL = new Set<ApplicationStatus>(['accepted', 'rejected', 'withdrawn']);
-const EARLY_EXITS: ApplicationStatus[] = ['rejected', 'withdrawn'];
-
 export function allowedTransitions(from: ApplicationStatus): ApplicationStatus[] {
-  if (TERMINAL.has(from)) return [];
-  const index = PIPELINE.indexOf(from);
-  const next = index >= 0 && index < PIPELINE.length - 1 ? [PIPELINE[index + 1]!] : [];
-  return [...next, ...EARLY_EXITS];
+  return ALL_STATUSES.filter((s) => s !== from);
 }
 
 export function isValidTransition(
   from: ApplicationStatus,
   to: ApplicationStatus,
 ): boolean {
-  if (from === to) return false;
-  return allowedTransitions(from).includes(to);
+  return from !== to;
 }

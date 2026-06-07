@@ -11,6 +11,14 @@ export interface GenerateCoverLetterInput {
   referenceId?: string;
   referenceText?: string;
   tone?: string;
+  customInstructions?: string;
+}
+
+export interface SaveCoverLetterInput {
+  content: string;
+  applicationId?: string;
+  jobTitle?: string;
+  jobCompany?: string;
 }
 
 export function useCoverLetters(applicationId?: string) {
@@ -28,6 +36,15 @@ export function useGenerateCoverLetter() {
   return useMutation({
     mutationFn: (input: GenerateCoverLetterInput) =>
       api.post<CoverLetter>('/cover-letters/generate', input),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['cover-letters'] }),
+  });
+}
+
+export function useSaveCoverLetter() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (input: SaveCoverLetterInput) =>
+      api.post<CoverLetter>('/cover-letters', input),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['cover-letters'] }),
   });
 }

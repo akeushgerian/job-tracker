@@ -10,6 +10,7 @@ export const generateCoverLetterSchema = z
     referenceId: z.uuid().optional(),
     referenceText: z.string().min(1).max(20000).optional(),
     tone: z.string().max(200).optional(),
+    customInstructions: z.string().max(2000).optional(),
   })
   .refine(
     (data) =>
@@ -18,6 +19,13 @@ export const generateCoverLetterSchema = z
       data.applicationId !== undefined,
     { message: 'Provide the job posting text, a URL, or an application', path: ['jobText'] },
   );
+
+export const saveCoverLetterSchema = z.object({
+  content: z.string().min(1).max(50000),
+  applicationId: z.uuid().optional(),
+  jobTitle: z.string().max(200).optional(),
+  jobCompany: z.string().max(200).optional(),
+});
 
 export const updateCoverLetterSchema = z.object({
   content: z.string().min(1).max(50000),
@@ -68,6 +76,7 @@ export const referenceListSchema = z.array(referenceSchema);
 export const idParamSchema = z.object({ id: z.uuid() });
 
 export type GenerateCoverLetterInput = z.infer<typeof generateCoverLetterSchema>;
+export type SaveCoverLetterInput = z.infer<typeof saveCoverLetterSchema>;
 export type UpdateCoverLetterInput = z.infer<typeof updateCoverLetterSchema>;
 export type ListCoverLettersQuery = z.infer<typeof listCoverLettersQuerySchema>;
 export type CoverLetterDto = z.infer<typeof coverLetterSchema>;

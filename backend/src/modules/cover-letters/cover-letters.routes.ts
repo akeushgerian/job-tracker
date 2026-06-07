@@ -17,6 +17,7 @@ import {
   listCoverLettersQuerySchema,
   referenceListSchema,
   referenceSchema,
+  saveCoverLetterSchema,
   updateCoverLetterSchema,
   updateReferenceSchema,
 } from './cover-letters.schemas.js';
@@ -77,6 +78,17 @@ export const coverLettersRoutes: FastifyPluginAsyncZod = async (router) => {
       },
     },
     controller.generate,
+  );
+
+  router.post(
+    '/cover-letters',
+    {
+      schema: {
+        body: saveCoverLetterSchema,
+        response: { 201: coverLetterSchema },
+      },
+    },
+    controller.save,
   );
 
   router.get(
