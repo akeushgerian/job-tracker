@@ -15,6 +15,20 @@
       "when": 1780426955218,
       "tag": "0001_medical_argent",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1780841904636,
+      "tag": "0002_bumpy_venus",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1780849261113,
+      "tag": "0003_demonic_doctor_doom",
+      "breakpoints": true
     }
   ]
 }

@@ -17,10 +17,12 @@ export class ActivitiesRepository {
     applicationId: string,
     type: ActivityRow['type'],
     description: string,
+    source: string = 'manual',
+    emailMatchId: string | null = null,
   ): Promise<ActivityRow> {
     const rows = await this.db
       .insert(activities)
-      .values({ applicationId, type, description })
+      .values({ applicationId, type, description, source, emailMatchId })
       .returning();
     return rows[0]!;
   }

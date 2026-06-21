@@ -4,6 +4,7 @@ import {
   uuid,
   text,
   integer,
+  real,
   boolean,
   timestamp,
   jsonb,
@@ -56,6 +57,26 @@ export const activityTypeEnum = pgEnum('activity_type', [
   'email_received',
   'follow_up',
   'interview_scheduled',
+]);
+
+export const gmailConnectionStatusEnum = pgEnum('gmail_connection_status', [
+  'active',
+  'needs_reauth',
+]);
+
+export const emailMatchStatusEnum = pgEnum('email_match_status', [
+  'applied',
+  'pending_review',
+  'ignored',
+]);
+
+export const emailMatchActionEnum = pgEnum('email_match_action', [
+  'status_change',
+  'interview_invite',
+  'offer',
+  'rejection',
+  'follow_up',
+  'none',
 ]);
 
 // --- Tables ---
@@ -128,6 +149,8 @@ export const activities = pgTable(
       .references(() => applications.id, { onDelete: 'cascade' }),
     type: activityTypeEnum('type').notNull(),
     description: text('description').notNull(),
+    source: text('source').notNull().default('manual'),
+    emailMatchId: uuid('email_match_id'),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => [index('activities_application_id_idx').on(table.applicationId)],
@@ -226,6 +249,71 @@ export const coverLetters = pgTable(
   ],
 );
 
+export const gmailConnections = pgTable(
+  'gmail_connections',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: uuid('user_id')
+      .notNull()
+      .unique()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    encryptedAccessToken: text('encrypted_access_token').notNull(),
+    encryptedRefreshToken: text('encrypted_refresh_token').notNull(),
+    tokenExpiryDate: timestamp('token_expiry_date', { withTimezone: true }),
+    connectedEmail: text('connected_email').notNull(),
+    status: gmailConnectionStatusEnum('status').notNull().default('active'),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+);
+
+export const emailSyncs = pgTable('email_syncs', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('user_id')
+    .notNull()
+    .unique()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  historyId: text('history_id'),
+  lastSyncedAt: timestamp('last_synced_at', { withTimezone: true }),
+});
+
+export const emailMatches = pgTable(
+  'email_matches',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    gmailMessageId: text('gmail_message_id').notNull(),
+    applicationId: uuid('application_id').references(() => applications.id, {
+      onDelete: 'set null',
+    }),
+    subject: text('subject').notNull(),
+    sender: text('sender').notNull(),
+    snippet: text('snippet').notNull().default(''),
+    receivedAt: timestamp('received_at', { withTimezone: true }).notNull(),
+    action: emailMatchActionEnum('action').notNull().default('none'),
+    confidence: real('confidence').notNull().default(0),
+    status: emailMatchStatusEnum('status').notNull().default('pending_review'),
+    classificationError: text('classification_error'),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    index('email_matches_user_id_idx').on(table.userId),
+    index('email_matches_application_id_idx').on(table.applicationId),
+    uniqueIndex('email_matches_user_message_idx').on(table.userId, table.gmailMessageId),
+  ],
+);
+
+export const aiSettings = pgTable('ai_settings', {
+  userId: uuid('user_id').notNull().primaryKey().references(() => users.id, { onDelete: 'cascade' }),
+  provider: text('provider').notNull().default('local'),
+  claudeApiKey: text('claude_api_key'),
+  claudeModel: text('claude_model').notNull().default('claude-haiku-4-5-20251001'),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+});
+export type AiSettingsRow = typeof aiSettings.$inferSelect;
+
 // --- Inferred row types ---
 
 export type UserRow = typeof users.$inferSelect;
@@ -246,3 +334,9 @@ export type CoverLetterReferenceRow = typeof coverLetterReferences.$inferSelect;
 export type NewCoverLetterReferenceRow = typeof coverLetterReferences.$inferInsert;
 export type CoverLetterRow = typeof coverLetters.$inferSelect;
 export type NewCoverLetterRow = typeof coverLetters.$inferInsert;
+export type GmailConnectionRow = typeof gmailConnections.$inferSelect;
+export type NewGmailConnectionRow = typeof gmailConnections.$inferInsert;
+export type EmailSyncRow = typeof emailSyncs.$inferSelect;
+export type NewEmailSyncRow = typeof emailSyncs.$inferInsert;
+export type EmailMatchRow = typeof emailMatches.$inferSelect;
+export type NewEmailMatchRow = typeof emailMatches.$inferInsert;

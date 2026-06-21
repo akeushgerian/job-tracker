@@ -16,7 +16,21 @@ interface ErrorBody {
 
 type RequestOptions = Omit<RequestInit, 'body'> & { body?: unknown };
 
-async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
+// Shared refresh promise so concurrent 401s don't each fire their own refresh.
+let refreshPromise: Promise<void> | null = null;
+
+function attemptRefresh(): Promise<void> {
+  refreshPromise ??= fetch('/api/auth/refresh', { method: 'POST', credentials: 'include' })
+    .then((res) => {
+      if (!res.ok) throw new Error('refresh_failed');
+    })
+    .finally(() => {
+      refreshPromise = null;
+    });
+  return refreshPromise;
+}
+
+async function request<T>(path: string, options: RequestOptions = {}, isRetry = false): Promise<T> {
   const { body, headers, ...rest } = options;
 
   const response = await fetch(`/api${path}`, {
@@ -31,6 +45,17 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
 
   if (response.status === 204) {
     return undefined as T;
+  }
+
+  // On 401, try refreshing once then replay the original request.
+  // Skip for auth endpoints to avoid infinite loops.
+  if (response.status === 401 && !isRetry && !path.startsWith('/auth/')) {
+    try {
+      await attemptRefresh();
+      return request<T>(path, options, true);
+    } catch {
+      // Refresh failed — fall through and throw the original 401.
+    }
   }
 
   const text = await response.text();

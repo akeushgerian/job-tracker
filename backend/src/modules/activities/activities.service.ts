@@ -10,6 +10,8 @@ function toDto(row: ActivityRow): ActivityDto {
     applicationId: row.applicationId,
     type: row.type,
     description: row.description,
+    source: row.source ?? 'manual',
+    emailMatchId: row.emailMatchId ?? null,
     createdAt: row.createdAt.toISOString(),
   };
 }

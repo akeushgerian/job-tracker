@@ -134,6 +134,24 @@ export class ProfileRequiredError extends AppError {
   }
 }
 
+export class JobScoutError extends AppError {
+  readonly statusCode = 502;
+  readonly code = 'JOB_SCOUT_UPSTREAM_ERROR';
+
+  constructor(message = 'Job search upstream error') {
+    super(message);
+  }
+}
+
+export class JobScoutUnconfiguredError extends AppError {
+  readonly statusCode = 503;
+  readonly code = 'JOB_SCOUT_UNCONFIGURED';
+
+  constructor() {
+    super('Job search is not configured. Add SERPER_API_KEY to the server environment (free at serper.dev).');
+  }
+}
+
 export class JobFetchError extends AppError {
   readonly statusCode = 422;
   readonly code = 'JOB_FETCH_FAILED';

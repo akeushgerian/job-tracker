@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { useSetAtom } from 'jotai';
-import { LayoutDashboard, KanbanSquare, LogOut, Sparkles, User, PenLine } from 'lucide-react';
+import { LayoutDashboard, KanbanSquare, LogOut, Sparkles, User, PenLine, Mail, Brain, Telescope } from 'lucide-react';
 import { useLogout, useMe } from '@/features/auth/api';
 import { assistantOpenAtom } from '@/stores/assistant';
 import { AssistantPanel } from '@/features/assistant/assistant-panel';
@@ -12,8 +12,11 @@ import { cn } from '@/lib/utils';
 
 const navItems = [
   { to: '/applications', label: 'Pipeline', icon: KanbanSquare },
+  { to: '/scout', label: 'Scout', icon: Telescope },
   { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { to: '/profile', label: 'Profile', icon: User },
+  { to: '/settings/gmail', label: 'Gmail', icon: Mail },
+  { to: '/settings/ai', label: 'AI Model', icon: Brain },
 ] as const;
 
 export function AppShell({ children }: { children: ReactNode }) {

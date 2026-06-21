@@ -30,6 +30,8 @@ export const activitySchema = z.object({
   applicationId: z.uuid(),
   type: activityTypeSchema,
   description: z.string(),
+  source: z.string(),
+  emailMatchId: z.uuid().nullable(),
   createdAt: z.string(),
 });
 

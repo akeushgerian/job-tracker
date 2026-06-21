@@ -8,6 +8,7 @@ import {
   AlertTriangle,
 } from 'lucide-react';
 import { useDashboardStats } from '@/features/dashboard/api';
+import { GmailStatusBadge } from '@/features/email-sync/GmailStatusBadge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { FullPageSpinner } from '@/components/ui/spinner';
@@ -27,9 +28,12 @@ function DashboardPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-5 py-8">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Dashboard</h1>
-        <p className="text-sm text-muted-foreground">Your job search at a glance.</p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">Dashboard</h1>
+          <p className="text-sm text-muted-foreground">Your job search at a glance.</p>
+        </div>
+        <GmailStatusBadge />
       </div>
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">

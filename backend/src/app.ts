@@ -18,6 +18,10 @@ import { assistantRoutes } from './modules/assistant/assistant.routes.js';
 import { profileRoutes } from './modules/profile/profile.routes.js';
 import { coverLettersRoutes } from './modules/cover-letters/cover-letters.routes.js';
 import { healthRoutes } from './modules/health/health.routes.js';
+import { emailSyncRoutes } from './modules/email-sync/email-sync.routes.js';
+import { settingsRoutes } from './modules/settings/settings.routes.js';
+import { jobScoutRoutes } from './modules/job-scout/job-scout.routes.js';
+import { startPoller } from './modules/email-sync/email-sync.poller.js';
 import './types/auth.js';
 
 export async function buildApp(): Promise<FastifyInstance> {
@@ -56,6 +60,15 @@ export async function buildApp(): Promise<FastifyInstance> {
   await app.register(assistantRoutes, { prefix: '/api/assistant' });
   await app.register(profileRoutes, { prefix: '/api/profile' });
   await app.register(coverLettersRoutes, { prefix: '/api' });
+  await app.register(emailSyncRoutes, { prefix: '/api/email-sync' });
+  await app.register(settingsRoutes, { prefix: '/api/settings' });
+  await app.register(jobScoutRoutes, { prefix: '/api/job-scout' });
+
+  if (process.env.GOOGLE_CLIENT_ID) {
+    void Promise.resolve(app.ready()).then(() => startPoller(app)).catch((err: unknown) => {
+      app.log.error({ err }, 'Failed to start Gmail poller');
+    });
+  }
 
   return app;
 }

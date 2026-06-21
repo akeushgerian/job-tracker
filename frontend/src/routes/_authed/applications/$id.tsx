@@ -8,6 +8,7 @@ import { FollowUpsTab } from '@/features/follow-ups/follow-ups-tab';
 import { ActivityTab } from '@/features/activities/activity-tab';
 import { CoverLetterDialog } from '@/features/cover-letters/cover-letter-dialog';
 import { CoverLettersList } from '@/features/cover-letters/cover-letters-list';
+import { EmailMatchList } from '@/features/email-sync/EmailMatchList';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { FullPageSpinner } from '@/components/ui/spinner';
@@ -71,6 +72,7 @@ function ApplicationDetailPage() {
           <TabsTrigger value="follow-ups">Follow-ups</TabsTrigger>
           <TabsTrigger value="letters">Cover letters</TabsTrigger>
           <TabsTrigger value="activity">Activity</TabsTrigger>
+          <TabsTrigger value="emails">Emails</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview">
@@ -90,6 +92,9 @@ function ApplicationDetailPage() {
         </TabsContent>
         <TabsContent value="activity">
           <ActivityTab applicationId={application.id} />
+        </TabsContent>
+        <TabsContent value="emails">
+          <EmailMatchList applicationId={application.id} />
         </TabsContent>
       </Tabs>
     </div>

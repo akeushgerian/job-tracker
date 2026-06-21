@@ -92,7 +92,21 @@ export function Board({ search }: { search: string }) {
         );
       })}
 
-      <ClosedColumn grouped={grouped} statuses={CLOSED} />
+      <ClosedColumn
+        grouped={grouped}
+        statuses={CLOSED}
+        dragged={dragged}
+        dragOver={dragOver}
+        onDragStart={setDraggingId}
+        onDragOver={(e, status) => {
+          if (dragged && isValidTransition(dragged.status, status)) {
+            e.preventDefault();
+            setDragOver(status);
+          }
+        }}
+        onDragLeave={() => setDragOver(null)}
+        onDrop={onDrop}
+      />
     </div>
   );
 }
@@ -144,25 +158,55 @@ function Column({
 function ClosedColumn({
   grouped,
   statuses,
+  dragged,
+  dragOver,
+  onDragStart,
+  onDragOver,
+  onDragLeave,
+  onDrop,
 }: {
   grouped: Map<ApplicationStatus, Application[]>;
   statuses: ApplicationStatus[];
+  dragged: Application | undefined;
+  dragOver: ApplicationStatus | null;
+  onDragStart: (id: string) => void;
+  onDragOver: (e: React.DragEvent, status: ApplicationStatus) => void;
+  onDragLeave: () => void;
+  onDrop: (status: ApplicationStatus) => void;
 }) {
-  const items = statuses.flatMap((s) => grouped.get(s) ?? []);
+  const groups = statuses.map((s) => ({ status: s, items: grouped.get(s) ?? [] }));
   return (
-    <div className="flex min-w-[220px] flex-1 flex-col rounded-xl border border-transparent bg-muted/40 p-2.5">
-      <div className="mb-2 flex items-center gap-2 px-1.5 py-1">
-        <span className="h-2 w-2 rounded-full bg-[hsl(33_8%_60%)]" />
-        <span className="text-sm font-medium tracking-tight">Closed</span>
-        <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-card px-1.5 text-xs font-medium text-muted-foreground tnum shadow-xs">
-          {items.length}
-        </span>
-      </div>
-      <div className="flex flex-1 flex-col gap-2">
-        {items.map((app) => (
-          <ApplicationCard key={app.id} application={app} onDragStart={() => {}} />
-        ))}
-      </div>
+    <div className="flex min-w-[220px] flex-1 flex-col gap-2">
+      {groups.map(({ status, items }) => {
+        const droppable = dragged != null && isValidTransition(dragged.status, status);
+        const highlight = dragOver === status && droppable;
+        return (
+          <div
+            key={status}
+            onDragOver={(e) => onDragOver(e, status)}
+            onDragLeave={onDragLeave}
+            onDrop={() => onDrop(status)}
+            className={cn(
+              'flex flex-col rounded-xl border border-transparent bg-muted/40 p-2.5 transition-all duration-200',
+              droppable && 'border-dashed border-primary/30',
+              highlight && 'border-solid border-primary/50 bg-primary/[0.06]',
+            )}
+          >
+            <div className="mb-2 flex items-center gap-2 px-1.5 py-1">
+              <span className={cn('h-2 w-2 rounded-full', STATUS_DOT_CLASSES[status])} />
+              <span className="text-sm font-medium tracking-tight">{STATUS_LABELS[status]}</span>
+              <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-card px-1.5 text-xs font-medium text-muted-foreground tnum shadow-xs">
+                {items.length}
+              </span>
+            </div>
+            <div className="flex flex-1 flex-col gap-2">
+              {items.map((app) => (
+                <ApplicationCard key={app.id} application={app} onDragStart={onDragStart} />
+              ))}
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 }

@@ -17,6 +17,10 @@ const migrationsFolder = join(
 
 // All app tables; truncated before each test to give every test a clean slate.
 const TABLES = [
+  'ai_settings',
+  'email_matches',
+  'email_syncs',
+  'gmail_connections',
   'cover_letters',
   'cover_letter_references',
   'user_profiles',

@@ -147,7 +147,63 @@ export interface Activity {
   applicationId: string;
   type: ActivityType;
   description: string;
+  source: string;
+  emailMatchId: string | null;
   createdAt: string;
+}
+
+export type EmailMatchAction =
+  | 'status_change'
+  | 'interview_invite'
+  | 'offer'
+  | 'rejection'
+  | 'follow_up'
+  | 'none';
+
+export type EmailMatchStatus = 'applied' | 'pending_review' | 'ignored';
+
+export interface EmailMatch {
+  id: string;
+  userId: string;
+  gmailMessageId: string;
+  applicationId: string | null;
+  subject: string;
+  sender: string;
+  snippet: string;
+  receivedAt: string;
+  action: EmailMatchAction;
+  confidence: number;
+  status: EmailMatchStatus;
+  classificationError: string | null;
+  createdAt: string;
+}
+
+export interface GmailStatus {
+  connected: boolean;
+  connectedEmail: string | null;
+  lastSyncedAt: string | null;
+  needsReauth: boolean;
+}
+
+export interface SyncAction {
+  subject: string;
+  sender: string;
+  company: string | null;
+  action: EmailMatchAction;
+  confidence: number;
+  status: 'applied' | 'pending_review';
+}
+
+export interface SyncResult {
+  processed: number;
+  matched: number;
+  actions: SyncAction[];
+}
+
+export interface AiSettings {
+  provider: 'local' | 'claude';
+  claudeApiKey: string | null;
+  claudeModel: string;
 }
 
 export const STATUS_LABELS: Record<ApplicationStatus, string> = {
@@ -178,3 +234,32 @@ export const TERMINAL_STATUSES: ApplicationStatus[] = [
   'rejected',
   'withdrawn',
 ];
+
+// --- Job Scout ---
+
+export interface JobResult {
+  id: string;
+  title: string;
+  company: string;
+  location: string;
+  salaryMin: number | null;
+  salaryMax: number | null;
+  snippet: string;
+  url: string;
+  created: string;
+  score: number | null;
+  fitNote: string | null;
+  gaps: string[];
+}
+
+export interface SearchResponse {
+  results: JobResult[];
+  message?: string;
+  scoringSkipped?: { reason: 'no_profile' | 'llm_error' };
+}
+
+export interface FetchAndScoreResponse {
+  score: number | null;
+  fitNote: string | null;
+  gaps: string[];
+}

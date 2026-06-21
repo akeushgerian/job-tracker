@@ -16,11 +16,17 @@ const envSchema = z.object({
     .default('false')
     .transform((value) => value === 'true'),
 
+  FRONTEND_URL: z.string().url().default('http://localhost:5173'),
+
   // --- Local LLM (Ollama, OpenAI-compatible) ---
   LLM_BASE_URL: z.string().url().default('http://localhost:11434/v1'),
   LLM_MODEL: z.string().default('llama3.1:8b'),
   LLM_API_KEY: z.string().default('ollama'),
   LLM_MAX_STEPS: z.coerce.number().int().positive().max(12).default(6),
+
+  // --- Serper Google Jobs API (optional — Job Scout feature) ---
+  SERPER_API_KEY: z.string().optional(),
+
 });
 
 export type Config = z.infer<typeof envSchema>;
